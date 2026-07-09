@@ -3,20 +3,22 @@ from pdf_helper import read_pdf
 import os
 import json
 import glob
+from datetime import datetime
+
 from dotenv import load_dotenv
 import google.generativeai as genai
 import streamlit.components.v1 as components
-from datetime import datetime
 
-# -----------------------------
-# Load Gemini API
-# -----------------------------
+
+# ---------------------------------------
+# Load Environment Variables
+# ---------------------------------------
 load_dotenv()
 
 api_key = os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
-    st.error("GOOGLE_API_KEY not found. Check your .env file.")
+    st.error("GOOGLE_API_KEY not found in .env file.")
     st.stop()
 
 genai.configure(api_key=api_key)
@@ -24,9 +26,9 @@ genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 
-# -----------------------------
+# ---------------------------------------
 # Page Configuration
-# -----------------------------
+# ---------------------------------------
 st.set_page_config(
     page_title="Ziggy AI",
     page_icon="🤖",
@@ -34,16 +36,17 @@ st.set_page_config(
 )
 
 
-# -----------------------------
-# Initialize Chat History
-# -----------------------------
+# ---------------------------------------
+# Session State
+# ---------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-
-# -----------------------------
+if "pdf_text" not in st.session_state:
+    st.session_state.pdf_text = ""
+    # ---------------------------------------
 # Sidebar
-# -----------------------------
+# ---------------------------------------
 with st.sidebar:
 
     st.title("🤖 Ziggy AI")
@@ -52,17 +55,19 @@ with st.sidebar:
 
     # New Chat
     if st.button("🆕 New Chat"):
+
         st.session_state.messages = []
         st.rerun()
 
     # Clear Chat
-    if st.button("🗑 Clear Chat"):
+    if st.button("🗑️ Clear Chat"):
+
         st.session_state.messages = []
         st.rerun()
 
     st.markdown("---")
 
-    # Download & Save Chat
+    # Download Chat
     if st.session_state.messages:
 
         chat_text = ""
@@ -78,7 +83,7 @@ with st.sidebar:
             label="📄 Download Chat",
             data=chat_text,
             file_name="ziggy_chat.txt",
-            mime="text/plain"
+            mime="text/plain",
         )
 
         if st.button("💾 Save Chat"):
@@ -88,6 +93,7 @@ with st.sidebar:
             filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
             with open(f"chat_history/{filename}.json", "w") as file:
+
                 json.dump(st.session_state.messages, file, indent=4)
 
             st.success("✅ Chat Saved!")
@@ -106,18 +112,20 @@ with st.sidebar:
 
     if saved_files:
 
-        for file in saved_files:
+        for i, file in enumerate(saved_files):
 
             chat_name = os.path.basename(file).replace(".json", "")
 
-            if st.button(f"📄 {chat_name}"):
+            if st.button(f"📄 {chat_name}", key=f"chat_{i}"):
 
                 with open(file, "r") as f:
+
                     st.session_state.messages = json.load(f)
 
                 st.rerun()
 
     else:
+
         st.caption("No saved chats yet.")
 
     st.markdown("---")
@@ -131,7 +139,16 @@ with st.sidebar:
     )
 
     if uploaded_pdf:
-        st.success(f"✅ {uploaded_pdf.name} uploaded!")
+
+        pdf_text = read_pdf(uploaded_pdf)
+
+        st.session_state.pdf_text = pdf_text
+
+        st.success("✅ PDF Loaded!")
+
+        with st.expander("📄 Preview PDF"):
+
+            st.write(pdf_text[:1000])
 
     st.markdown("---")
 
@@ -139,34 +156,40 @@ with st.sidebar:
     st.subheader("ℹ️ About")
 
     st.write("""
-Welcome to **Ziggy AI**
+**Welcome to Ziggy AI**
 
 Professional AI Assistant
 
 Version **2.0**
 """)
-# -----------------------------
+    # ---------------------------------------
 # Main Header
-# -----------------------------
+# ---------------------------------------
 col1, col2 = st.columns([1, 6])
 
 with col1:
     st.image("assets/logo.png", width=80)
 
 with col2:
-    st.title("Ziggy AI")
+    st.title("🤖 Ziggy AI")
     st.caption("Build • Learn • Create")
 
-if "pdf_text" in st.session_state:
+
+# ---------------------------------------
+# PDF Status
+# ---------------------------------------
+if st.session_state.pdf_text:
 
     st.info("📄 PDF Loaded Successfully!")
 
-    with st.expander("Preview PDF Text"):
+    with st.expander("Preview PDF"):
 
         st.write(st.session_state.pdf_text[:1000])
-# -----------------------------
+
+
+# ---------------------------------------
 # Welcome Screen
-# -----------------------------
+# ---------------------------------------
 if len(st.session_state.messages) == 0:
 
     st.markdown("""
@@ -181,6 +204,7 @@ Ask me anything about:
 - 🐍 Python
 - 📊 Machine Learning
 - 🚀 Career Guidance
+- 📄 PDF Documents
 
 ---
 
@@ -190,28 +214,31 @@ Ask me anything about:
 - Explain Machine Learning.
 - Help me write Python code.
 - Teach me Git and GitHub.
+- Summarize this PDF.
 
 ---
 
-✨ Ziggy AI can help you learn, create, and explore new ideas.
+✨ Ziggy AI can help you learn, build and create amazing projects.
 """)
-# -----------------------------
-# Display Previous Messages
-# -----------------------------
+
+
+# ---------------------------------------
+# Display Chat History
+# ---------------------------------------
 for message in st.session_state.messages:
 
     avatar = "👤" if message["role"] == "user" else "🤖"
 
     with st.chat_message(message["role"], avatar=avatar):
+
         st.markdown(message["content"])
-        st.caption(f"🕒 {message['time']}")
 
-
-# -----------------------------
+        if "time" in message:
+            st.caption(f"🕒 {message['time']}")
+            # ---------------------------------------
 # Chat Input
-# -----------------------------
-prompt = st.chat_input("Ask me anything...")
-
+# ---------------------------------------
+prompt = st.chat_input("💬 Ask me anything...")
 
 if prompt:
 
@@ -231,26 +258,35 @@ if prompt:
         }
     )
 
+    # Add PDF Context (if available)
+    pdf_context = ""
+
+    if st.session_state.pdf_text:
+        pdf_context = f"""
+
+PDF CONTENT:
+{st.session_state.pdf_text[:12000]}
+"""
+
+    # System Prompt
     system_prompt = f"""
 You are Ziggy AI.
 
-You are a friendly professional AI assistant.
+You are a friendly, professional AI assistant.
 
 Rules:
-- Greet users briefly.
-- Reply politely.
-- Explain AI, Python and programming clearly.
-- Keep answers concise unless asked for details.
-- Never say you are Gemini.
-- Always introduce yourself as Ziggy AI.
+- Never introduce yourself as Gemini.
+- Always say you are Ziggy AI.
+- Be clear and helpful.
+- If PDF content is available, answer using it first.
+- If the answer is not in the PDF, use your general knowledge.
 
-User:
+{pdf_context}
+
+User Question:
 {prompt}
 """
 
-    # -----------------------------
-    # AI Response
-    # -----------------------------
     try:
 
         with st.chat_message("assistant", avatar="🤖"):
@@ -264,22 +300,30 @@ User:
                 ai_time = datetime.now().strftime("%I:%M %p")
 
                 st.markdown(ai_response)
+
                 st.caption(f"🕒 {ai_time}")
 
-                # Copy Button
                 components.html(
                     f"""
-                    <button onclick="
-                    navigator.clipboard.writeText(`{ai_response}`);
-                    this.innerHTML='✅ Copied!';
-                    ">
-                    📋 Copy Response
+                    <button
+                        style="
+                        background:#262730;
+                        color:white;
+                        border:none;
+                        padding:10px;
+                        border-radius:8px;
+                        cursor:pointer;
+                        "
+                        onclick="
+                        navigator.clipboard.writeText(`{ai_response}`);
+                        this.innerHTML='✅ Copied!';
+                        ">
+                        📋 Copy Response
                     </button>
                     """,
-                    height=50,
+                    height=55,
                 )
 
-        # Save AI Message
         st.session_state.messages.append(
             {
                 "role": "assistant",
@@ -290,7 +334,14 @@ User:
 
     except Exception as e:
 
-        st.error(
-            "⚠️ Ziggy AI is temporarily unavailable or the API quota has been exceeded."
-        )
+      if "429" in str(e):
 
+        st.warning("""
+⚠️ Ziggy AI has reached the Gemini API free quota.
+
+Please wait a little while and try again.
+""")
+
+    else:
+
+        st.error("⚠️ Something went wrong. Please try again.")

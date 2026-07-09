@@ -1,9 +1,9 @@
 from pypdf import PdfReader
 
-
 def read_pdf(uploaded_pdf):
     """
-    Reads a PDF file and returns all text.
+    Reads all text from an uploaded PDF.
+    Returns a single string.
     """
 
     reader = PdfReader(uploaded_pdf)

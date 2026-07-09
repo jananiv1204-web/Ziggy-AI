@@ -8,13 +8,17 @@ Ziggy AI is a conversational AI application designed to answer questions, assist
 
 ---
 
-## ✨ Features
+## Features
 
-- 💬 AI-powered conversations
-- 🎨 Custom branded interface
-- 🖼️ Personalized Ziggy AI logo
-- ⚡ Fast and interactive responses
-- 🌐 Web-based chatbot experience
+- 🤖 AI Chat
+- 📄 Download Chats
+- 💾 Save Chats
+- 📚 Load Previous Chats
+- 🕒 Chat Timestamps
+- 📋 Copy Responses
+- 📂 PDF Upload
+- 🧠 Multiple AI Modes
+- 🎨 Custom UI
 
 ---
 
