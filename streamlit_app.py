@@ -104,7 +104,10 @@ Ask me anything about:
 # Display Chat History
 # -----------------------------
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+
+    avatar = "👤" if message["role"] == "user" else "🤖"
+
+    with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
 
 # -----------------------------
@@ -115,7 +118,7 @@ prompt = st.chat_input("Ask me anything...")
 if prompt:
 
     # Display user message
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
 
     st.session_state.messages.append(
@@ -145,7 +148,7 @@ User:
 
     # AI Response
     try:
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar="🤖"):
             with st.spinner("🤖 Ziggy is thinking..."):
                 response = model.generate_content(system_prompt)
                 ai_response = response.text
