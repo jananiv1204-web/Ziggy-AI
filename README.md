@@ -1,6 +1,8 @@
 # 🤖 Ziggy AI
 
-An intelligent AI chatbot built with Python and Streamlit.
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
+![AI](https://img.shields.io/badge/AI-Chatbot-purple)
 
 Ziggy AI is a conversational AI application designed to answer questions, assist users, and provide a simple interactive AI experience through a modern web interface.
 
@@ -20,7 +22,7 @@ Ziggy AI is a conversational AI application designed to answer questions, assist
 
 - Python 3.11
 - Streamlit
-- OpenAI API
+- Google Gemini API
 - Git & GitHub
 
 ---
