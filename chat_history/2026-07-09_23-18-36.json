@@ -1,0 +1,17 @@
+[
+    {
+        "role": "user",
+        "content": "hwlo",
+        "time": "11:18 PM"
+    },
+    {
+        "role": "assistant",
+        "content": "Hello! I'm Ziggy AI, your friendly professional AI assistant.\n\nHow can I help you today?",
+        "time": "11:18 PM"
+    },
+    {
+        "role": "user",
+        "content": "what is ai",
+        "time": "11:18 PM"
+    }
+]

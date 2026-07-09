@@ -43,91 +43,81 @@ if "messages" not in st.session_state:
 # -----------------------------
 # Sidebar
 # -----------------------------
-with st.sidebar:
+if st.session_state.messages:
 
-    st.title("🤖 Ziggy AI")
+    chat_text = "========================\n"
+    chat_text += "        ZIGGY AI CHAT\n"
+    chat_text += "========================\n\n"
 
-    st.markdown("---")
+    for msg in st.session_state.messages:
 
-    if st.button("🆕 New Chat"):
-        st.session_state.messages = []
-        st.rerun()
+        sender = "👤 User" if msg["role"] == "user" else "🤖 Ziggy AI"
 
-    if st.button("🗑 Clear Chat"):
-        st.session_state.messages = []
-        st.rerun()
+        chat_text += f"{sender} ({msg['time']})\n"
+        chat_text += f"{msg['content']}\n"
+        chat_text += "-" * 40 + "\n\n"
 
-    st.markdown("---")
+    st.download_button(
+        label="📄 Download Chat",
+        data=chat_text,
+        file_name="ziggy_chat.txt",
+        mime="text/plain",
+    )
 
-    if st.session_state.messages:
+    # Save Chat
+    if st.button("💾 Save Chat"):
 
-        chat_text = ""
-
-        for msg in st.session_state.messages:
-
-            sender = "👤 User" if msg["role"] == "user" else "🤖 Ziggy AI"
-
-            chat_text += f"{sender} ({msg['time']})\n"
-            chat_text += f"{msg['content']}\n\n"
-
-        st.download_button(
-            "📄 Download Chat",
-            chat_text,
-            file_name="ziggy_chat.txt",
-            mime="text/plain"
-        )
-
-        if st.button("💾 Save Chat"):
-
-            os.makedirs("chat_history", exist_ok=True)
+        if st.session_state.messages:
 
             filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
             with open(f"chat_history/{filename}.json", "w") as file:
-
                 json.dump(st.session_state.messages, file, indent=4)
 
-            st.success("Chat saved!")
-
-    st.markdown("---")
-
-    st.subheader("📚 Saved Chats")
-
-    os.makedirs("chat_history", exist_ok=True)
-
-    saved_files = sorted(
-        glob.glob("chat_history/*.json"),
-        reverse=True
-    )
-
-    if saved_files:
-
-        for file in saved_files:
-
-            name = os.path.basename(file).replace(".json", "")
-
-            if st.button(f"📄 {name}"):
-
-                with open(file, "r") as f:
-
-                    st.session_state.messages = json.load(f)
-
-                st.rerun()
-
-    else:
-
-        st.caption("No saved chats yet.")
+            st.success("✅ Chat Saved Successfully!")
 
     st.markdown("---")
 
     st.subheader("About")
+    st.markdown("---")
+st.subheader("📚 Saved Chats")
+st.markdown("---")
+st.subheader("📚 Saved Chats")
+
+saved_files = glob.glob("chat_history/*.json")
+
+for file in saved_files:
+
+    chat_name = os.path.basename(file).replace(".json", "")
+
+    st.write(f"📄 {chat_name}")
 
     st.write("""
-Welcome to **Ziggy AI**
+Welcome to **Ziggy AI**!
 
-Professional AI Assistant
+Your professional AI assistant powered by Google's Gemini.
 
-Version **2.0**
+**Version 1.0**
+""")
+    if st.session_state.messages:
+
+        filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+        with open(f"chat_history/{filename}.json", "w") as file:
+            json.dump(st.session_state.messages, file, indent=4)
+
+        st.success("✅ Chat Saved Successfully!")
+
+st.markdown("---")
+
+st.subheader("About")
+
+st.write("""
+Welcome to **Ziggy AI**!
+
+Your professional AI assistant powered by Google's Gemini.
+
+**Version 1.0**
 """)
 # -----------------------------
 # Main Header
