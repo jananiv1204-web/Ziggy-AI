@@ -41,7 +41,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
- # -----------------------------
+# -----------------------------
 # Sidebar
 # -----------------------------
 with st.sidebar:
@@ -62,17 +62,17 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # Download & Save (only if chat exists)
+    # Download & Save Chat
     if st.session_state.messages:
 
         chat_text = ""
 
         for msg in st.session_state.messages:
+
             sender = "👤 User" if msg["role"] == "user" else "🤖 Ziggy AI"
 
             chat_text += f"{sender} ({msg['time']})\n"
-            chat_text += f"{msg['content']}\n"
-            chat_text += "-" * 40 + "\n\n"
+            chat_text += f"{msg['content']}\n\n"
 
         st.download_button(
             label="📄 Download Chat",
@@ -126,17 +126,13 @@ with st.sidebar:
     st.subheader("📂 AI Tools")
 
     uploaded_pdf = st.file_uploader(
-    "Upload PDF",
-    type=["pdf"]
-)
+        "Upload PDF",
+        type=["pdf"]
+    )
 
-if uploaded_pdf:
+    if uploaded_pdf:
+        st.success(f"✅ {uploaded_pdf.name} uploaded!")
 
-    st.success(f"✅ {uploaded_pdf.name} uploaded!")
-
-    pdf_text = read_pdf(uploaded_pdf)
-
-    st.session_state.pdf_text = pdf_text
     st.markdown("---")
 
     # About
@@ -147,7 +143,7 @@ Welcome to **Ziggy AI**
 
 Professional AI Assistant
 
-**Version 2.0**
+Version **2.0**
 """)
 # -----------------------------
 # Main Header
