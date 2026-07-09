@@ -1,4 +1,5 @@
 import streamlit as st
+from pdf_helper import read_pdf
 import os
 import json
 import glob
@@ -125,13 +126,17 @@ with st.sidebar:
     st.subheader("📂 AI Tools")
 
     uploaded_pdf = st.file_uploader(
-        "Upload PDF",
-        type=["pdf"]
-    )
+    "Upload PDF",
+    type=["pdf"]
+)
 
-    if uploaded_pdf:
-        st.success(f"✅ {uploaded_pdf.name} uploaded!")
+if uploaded_pdf:
 
+    st.success(f"✅ {uploaded_pdf.name} uploaded!")
+
+    pdf_text = read_pdf(uploaded_pdf)
+
+    st.session_state.pdf_text = pdf_text
     st.markdown("---")
 
     # About
@@ -156,7 +161,13 @@ with col2:
     st.title("Ziggy AI")
     st.caption("Build • Learn • Create")
 
+if "pdf_text" in st.session_state:
 
+    st.info("📄 PDF Loaded Successfully!")
+
+    with st.expander("Preview PDF Text"):
+
+        st.write(st.session_state.pdf_text[:1000])
 # -----------------------------
 # Welcome Screen
 # -----------------------------
