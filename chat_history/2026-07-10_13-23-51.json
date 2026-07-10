@@ -1,0 +1,22 @@
+[
+    {
+        "role": "user",
+        "content": "hey",
+        "time": "01:17 PM"
+    },
+    {
+        "role": "assistant",
+        "content": "Hello! I'm Ziggy AI. How can I assist you today?",
+        "time": "01:17 PM"
+    },
+    {
+        "role": "user",
+        "content": "what is Artificial intelligence?",
+        "time": "01:18 PM"
+    },
+    {
+        "role": "assistant",
+        "content": "Hello! Ziggy AI here to help.\n\nArtificial Intelligence (AI) refers to the development of computer systems that can perform tasks typically requiring human intelligence. These tasks include things like learning, problem-solving, decision-making, understanding language, and recognizing patterns or objects.\n\nEssentially, AI aims to enable machines to think and act with human-like cognitive abilities. It encompasses a wide range of fields and technologies, from machine learning and deep learning to natural language processing and computer vision.",
+        "time": "01:18 PM"
+    }
+]
