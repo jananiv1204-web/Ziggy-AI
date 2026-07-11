@@ -1,6 +1,9 @@
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
+from rag.pdf_loader import load_pdf
+import streamlit as st
+import google.generativeai as genai
 import streamlit as st
 from pdf_helper import read_pdf
 import os
@@ -227,16 +230,15 @@ with st.sidebar:
 
     if uploaded_pdf:
 
-        pdf_text = read_pdf(uploaded_pdf)
+        pdf_text = load_pdf(uploaded_pdf)
 
         st.session_state.pdf_text = pdf_text
 
         st.success("✅ PDF Loaded!")
 
-        with st.expander("📄 Preview PDF"):
-            st.write(pdf_text[:1000])
+        with st.expander("📄 Preview PDF"):   
 
-    st.markdown("---")
+         st.markdown("---")
 
     # ---------------------------------------
     # About
