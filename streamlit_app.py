@@ -154,10 +154,6 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.title("🤖 Ziggy AI")
-
-    st.markdown("---")
-
     # ---------------------------------------
     # New Chat
     # ---------------------------------------
@@ -242,13 +238,39 @@ with st.sidebar:
     # ---------------------------------------
     st.subheader("ℹ️ About")
 
-    st.write("""
-**Welcome to Ziggy AI**
+    st.markdown("""
+    ## 🤖 Ziggy AI
 
-Professional AI Assistant powered by Google Gemini.
+    Professional AI Assistant
 
-**Version 2.0**
-""")
+    ### 📦 Version
+    **2.0**
+
+    ---
+
+    ### 🛠 Built With
+
+    - 🐍 Python
+    - 🎈 Streamlit
+    - 🤖 Google Gemini API
+    - 📄 ReportLab
+
+    ---
+
+    ### 👩‍💻 Developer
+
+    **Janani V**
+
+    ---
+
+    ### 📜 License
+
+    MIT License
+
+    ---
+
+    Made with ❤️ using Python & Streamlit.
+    """)
     # ---------------------------------------
     # Settings
     # ---------------------------------------
@@ -259,7 +281,38 @@ Professional AI Assistant powered by Google Gemini.
     ["System", "Light", "Dark"],
     key="theme_select"
 )
-    
+    default_ai_mode = st.selectbox(
+    "🤖 Default AI Mode",
+    [
+        "General Assistant",
+        "Coding Assistant",
+        "Career Coach",
+        "Study Assistant",
+        "PDF Assistant"
+    ],
+    key="default_ai_mode"
+)
+    # ---------------------------------------
+    # Chat Preferences
+    # ---------------------------------------
+
+    show_timestamps = st.checkbox(
+      "💬 Show Timestamps",
+      value=True,
+      key="show_timestamps"
+)
+
+    show_avatars = st.checkbox(
+    "👤 Show Avatars",
+    value=True,
+    key="show_avatars"
+)
+
+    enable_animations = st.checkbox(
+      "✨ Enable Animations",
+      value=True,
+      key="enable_animations"
+)
     # ---------------------------------------
 # Main Header
 # ---------------------------------------
@@ -321,18 +374,21 @@ Ask me anything about:
 """)
 
 
-# ---------------------------------------
-# Display Chat History
-# ---------------------------------------
+# -----------------------------
+# Display Previous Messages
+# -----------------------------
 for message in st.session_state.messages:
 
-    avatar = "👤" if message["role"] == "user" else "🤖"
+    if show_avatars:
+        avatar = "👤" if message["role"] == "user" else "🤖"
+    else:
+        avatar = None
 
     with st.chat_message(message["role"], avatar=avatar):
 
         st.markdown(message["content"])
 
-        if "time" in message:
+        if show_timestamps:
             st.caption(f"🕒 {message['time']}")
             # ---------------------------------------
 # Chat Input
@@ -344,9 +400,14 @@ if prompt:
     current_time = datetime.now().strftime("%I:%M %p")
 
     # Display User Message
-    with st.chat_message("user", avatar="👤"):
+    with st.chat_message(
+        "user",
+        avatar="👤" if show_avatars else None
+    ):
         st.markdown(prompt)
-        st.caption(f"🕒 {current_time}")
+
+        if show_timestamps:
+            st.caption(f"🕒 {current_time}")
 
     # Save User Message
     st.session_state.messages.append(
@@ -357,7 +418,7 @@ if prompt:
         }
     )
 
-    # Add PDF Context (if available)
+    # PDF Context
     pdf_context = ""
 
     if st.session_state.pdf_text:
@@ -371,14 +432,14 @@ PDF CONTENT:
     system_prompt = f"""
 You are Ziggy AI.
 
-You are a friendly, professional AI assistant.
+You are a friendly professional AI assistant.
 
 Rules:
 - Never introduce yourself as Gemini.
-- Always say you are Ziggy AI.
+- Always introduce yourself as Ziggy AI.
 - Be clear and helpful.
-- If PDF content is available, answer using it first.
-- If the answer is not in the PDF, use your general knowledge.
+- If PDF content exists, answer using it first.
+- Otherwise answer normally.
 
 {pdf_context}
 
@@ -386,9 +447,13 @@ User Question:
 {prompt}
 """
 
+    # AI Response
     try:
 
-        with st.chat_message("assistant", avatar="🤖"):
+        with st.chat_message(
+            "assistant",
+            avatar="🤖" if show_avatars else None
+        ):
 
             with st.spinner("🤖 Ziggy is thinking..."):
 
@@ -400,7 +465,8 @@ User Question:
 
                 st.markdown(ai_response)
 
-                st.caption(f"🕒 {ai_time}")
+                if show_timestamps:
+                    st.caption(f"🕒 {ai_time}")
 
                 components.html(
                     f"""
@@ -423,6 +489,7 @@ User Question:
                     height=55,
                 )
 
+        # Save AI Message
         st.session_state.messages.append(
             {
                 "role": "assistant",
@@ -433,14 +500,11 @@ User Question:
 
     except Exception as e:
 
-     if "429" in str(e):
-
-        st.warning("""
+        if "429" in str(e):
+            st.warning("""
 ⚠️ Ziggy AI has reached the Gemini API free quota.
 
 Please wait a little while and try again.
 """)
-
-    else:
-
-        st.error("⚠️ Something went wrong. Please try again.")
+        else:
+            st.error("⚠️ Something went wrong. Please try again.")
