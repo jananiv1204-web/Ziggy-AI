@@ -19,8 +19,15 @@ Ziggy AI is a conversational AI application designed to answer questions, assist
 - 📂 PDF Upload
 - 🧠 Multiple AI Modes
 - 🎨 Custom UI
-
----
+- 🤖 Ziggy AI
+- 📖 About
+- ✨ Features
+- 🛠 Tech Stack
+- 📸 Screenshots
+- 🚀 Installation
+- 📂 Project Structure
+- 🔮 Future Roadmap
+- 👨‍💻 Author
 
 ## 🛠️ Technologies Used
 
