@@ -18,16 +18,21 @@ import streamlit.components.v1 as components
 # ---------------------------------------
 load_dotenv()
 
-api_key = os.getenv("GOOGLE_API_KEY")
+# Try Streamlit Secrets first, then .env
+try:
+    api_key = st.secrets["GOOGLE_API_KEY"]
+except Exception:
+    api_key = os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
-    st.error("GOOGLE_API_KEY not found in .env file.")
+    st.error("❌ GOOGLE_API_KEY not found.")
+    st.info("Local: Add it to your .env file.")
+    st.info("Streamlit Cloud: Add it in Settings → Secrets.")
     st.stop()
 
 genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
-
 
 # ---------------------------------------
 # Page Configuration
@@ -390,7 +395,8 @@ for message in st.session_state.messages:
 
         if show_timestamps:
             st.caption(f"🕒 {message['time']}")
-            # ---------------------------------------
+            
+# ---------------------------------------
 # Chat Input
 # ---------------------------------------
 prompt = st.chat_input("💬 Ask me anything...")
