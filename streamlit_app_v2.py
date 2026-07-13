@@ -254,11 +254,10 @@ with st.sidebar:
         "Choose an image",
         type=["png", "jpg", "jpeg"],
         key="image_uploader"
-    ) 
+)
     image = load_image(uploaded_image)
-    load_image()
-    if image:
 
+    if image is not None:
         st.image(
             image,
             caption="Uploaded Image",
