@@ -255,8 +255,18 @@ with st.sidebar:
         type=["png", "jpg", "jpeg"],
         key="image_uploader"
 )
-    image = load_image(uploaded_image)
+    if uploaded_image is not None:
 
+        image = load_image(uploaded_image)
+
+        st.image(
+        image,
+        caption="Uploaded Image",
+        use_container_width=True
+    )
+    st.success("✅ Image uploaded successfully!")
+    image = load_image(uploaded_image)
+    
     if image is not None:
         st.image(
             image,
