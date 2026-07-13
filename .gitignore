@@ -1,3 +1,26 @@
-.venv/
-.env
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment Variables
+.env
+
+# Streamlit Secrets
+.streamlit/secrets.toml
+
+# Chat History
+chat_history/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
