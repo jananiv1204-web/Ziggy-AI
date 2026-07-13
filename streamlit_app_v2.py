@@ -256,6 +256,10 @@ with st.sidebar:
         key="image_uploader"
 )
     if uploaded_image is not None:
+        st.session_state.uploaded_image = uploaded_image
+    if "uploaded_image" not in st.session_state:
+        st.session_state.uploaded_image = None
+    if uploaded_image is not None:
 
         image = load_image(uploaded_image)
 
@@ -669,6 +673,9 @@ Document Context:
 Current User Question:
 {prompt}
 
+Uploaded Image:
+{"Yes" if st.session_state.uploaded_image else "No"}
+
 Instructions:
 
 1. Answer naturally and conversationally.
@@ -694,7 +701,20 @@ with st.chat_message("assistant", avatar="🤖"):
     with st.spinner("🧠 Ziggy is analyzing your request..."):
 
         try:
-            response = model.generate_content(system_prompt)
+            if st.session_state.uploaded_image is not None:
+
+                image = load_image(st.session_state.uploaded_image)
+
+                response = model.generate_content(
+                    [
+                        system_prompt,
+                        image
+                    ]
+                )
+
+            else:
+
+                response = model.generate_content(system_prompt)
 
             if hasattr(response, "text") and response.text:
                 ai_response = response.text
