@@ -616,7 +616,7 @@ if st.session_state.vector_store is not None:
 
 history = ""
 
-for msg in st.session_state.messages[-8:]:
+for msg in st.session_state.messages[-4:]:
 
     speaker = "User" if msg["role"] == "user" else "Ziggy AI"
 
@@ -668,39 +668,57 @@ with st.chat_message("assistant", avatar="🤖"):
 
     with st.spinner("🧠 Ziggy is analyzing your request..."):
 
-        response = model.generate_content(system_prompt)
+        try:
+            response = model.generate_content(system_prompt)
 
-if hasattr(response, "text") and response.text:
-    ai_response = response.text
-else:
-    ai_response = "⚠️ I couldn't generate a response. Please try again."
+            if hasattr(response, "text") and response.text:
+                ai_response = response.text
+            else:
+                ai_response = "⚠️ I couldn't generate a response. Please try again."
 
-st.markdown(ai_response)
-components.html(
-    f"""
-    <button
-        style="
-        background:#262730;
-        color:white;
-        border:none;
-        padding:10px;
-        border-radius:8px;
-        cursor:pointer;
-        "
-        onclick="
-        navigator.clipboard.writeText(`{ai_response}`);
-        this.innerHTML='✅ Copied!';
-        ">
-        📋 Copy Response
-    </button>
-    """,
-    height=55,
-)
-ai_time = datetime.now().strftime("%I:%M %p")
+        except Exception as e:
 
-if st.session_state.show_timestamps:
+            error = str(e)
 
-    st.caption(f"🕒 {ai_time}")
+            if "ResourceExhausted" in error or "429" in error:
+                ai_response = """
+⚠️ **Gemini API usage limit reached**
+
+The free Google Gemini API quota has been exceeded.
+
+Please wait a while and try again later.
+"""
+
+            else:
+                ai_response = f"⚠️ Unexpected Error:\n\n{error}"
+
+    st.markdown(ai_response)
+
+    components.html(
+        f"""
+        <button
+            style="
+            background:#262730;
+            color:white;
+            border:none;
+            padding:10px;
+            border-radius:8px;
+            cursor:pointer;
+            "
+            onclick="
+            navigator.clipboard.writeText(`{ai_response}`);
+            this.innerHTML='✅ Copied!';
+            ">
+            📋 Copy Response
+        </button>
+        """,
+        height=55,
+    )
+
+    ai_time = datetime.now().strftime("%I:%M %p")
+
+    if st.session_state.show_timestamps:
+        st.caption(f"🕒 {ai_time}")
 
 st.session_state.messages.append(
     {
