@@ -255,6 +255,8 @@ with st.sidebar:
         type=["png", "jpg", "jpeg"],
         key="image_uploader"
 )
+    if st.session_state.uploaded_image is None:
+        st.info("📷 No image uploaded.")
     if uploaded_image is not None:
         st.session_state.uploaded_image = uploaded_image
     if "uploaded_image" not in st.session_state:
@@ -277,6 +279,12 @@ with st.sidebar:
             caption="Uploaded Image",
             use_container_width=True
     )
+    if st.button("🗑️ Clear Image"):
+
+        st.session_state.uploaded_image = None
+
+        st.rerun()
+        
     if uploaded_files:
 
         all_text = ""
@@ -765,10 +773,16 @@ Please wait a while and try again later.
     if st.session_state.show_timestamps:
         st.caption(f"🕒 {ai_time}")
 
+user_message = prompt
+
+if st.session_state.uploaded_image is not None:
+    user_message = "🖼 [Image Uploaded]\n\n" + prompt
+
 st.session_state.messages.append(
     {
-        "role": "assistant",
-        "content": ai_response,
-        "time": ai_time
+        "role": "user",
+        "content": user_message,
+        "time": current_time
     }
 )
+st.session_state.uploaded_image = None
