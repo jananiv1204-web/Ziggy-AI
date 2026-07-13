@@ -1,22 +1,24 @@
-import os
-
-from dotenv import load_dotenv
-
-from langchain_huggingface import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 from langchain_community.vectorstores import FAISS
+from langchain_core.embeddings import Embeddings
 
-load_dotenv()
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+class HuggingFaceEmbedding(Embeddings):
+    def __init__(self):
+        self.model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+    def embed_documents(self, texts):
+        return self.model.encode(texts).tolist()
+
+    def embed_query(self, text):
+        return self.model.encode(text).tolist()
+
+
+embeddings = HuggingFaceEmbedding()
 
 
 def create_vector_store(chunks):
-
-    vector_store = FAISS.from_texts(
+    return FAISS.from_texts(
         texts=chunks,
         embedding=embeddings
     )
-
-    return vector_store
