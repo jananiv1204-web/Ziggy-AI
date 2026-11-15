@@ -8,8 +8,8 @@ from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 
-from voice.speech_to_text import save_audio
-from voice.text_to_speech import text_to_speech
+from speech_to_text import save_audio
+from text_to_speech import text_to_speech
 from streamlit_mic_recorder import mic_recorder
 
 from dotenv import load_dotenv
