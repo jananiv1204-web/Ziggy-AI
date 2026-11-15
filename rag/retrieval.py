@@ -1,16 +1,20 @@
+from rag.vector_store import embed_texts
+
+
 def retrieve_chunks(vector_store, query, k=4):
-    """
-    Retrieve the most relevant chunks from the vector store.
-    """
-
-    if vector_store is None:
+    if not vector_store:
         return ""
 
-    docs = vector_store.similarity_search(query, k=k)
+    query_vector = embed_texts([query], "retrieval_query")
 
-    if not docs:
-        return ""
+    k = min(k, len(vector_store["chunks"]))
 
-    context = "\n\n".join(doc.page_content for doc in docs)
+    _, ids = vector_store["index"].search(query_vector, k)
 
-    return context
+    results = [
+        vector_store["chunks"][i]
+        for i in ids[0]
+        if i != -1
+    ]
+
+    return "\n\n".join(results)
