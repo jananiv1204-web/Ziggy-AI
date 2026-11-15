@@ -1,26 +1,45 @@
-from sentence_transformers import SentenceTransformer
-from langchain_community.vectorstores import FAISS
-from langchain_core.embeddings import Embeddings
+import numpy as np
+import faiss
+import google.generativeai as genai
+
+EMBED_MODEL = "models/gemini-embedding-001"
 
 
-class HuggingFaceEmbedding(Embeddings):
-    def __init__(self):
-        self.model = SentenceTransformer(
-            "sentence-transformers/all-MiniLM-L6-v2"
+def _to_text(chunk):
+    if isinstance(chunk, str):
+        return chunk
+    return getattr(chunk, "page_content", str(chunk))
+
+
+def embed_texts(texts, task_type):
+    vectors = []
+
+    for i in range(0, len(texts), 100):
+        batch = texts[i:i + 100]
+
+        result = genai.embed_content(
+            model=EMBED_MODEL,
+            content=batch,
+            task_type=task_type
         )
 
-    def embed_documents(self, texts):
-        return self.model.encode(texts).tolist()
+        vectors.extend(result["embedding"])
 
-    def embed_query(self, text):
-        return self.model.encode(text).tolist()
+    array = np.array(vectors, dtype="float32")
+    faiss.normalize_L2(array)
 
-
-embeddings = HuggingFaceEmbedding()
+    return array
 
 
 def create_vector_store(chunks):
-    return FAISS.from_texts(
-        texts=chunks,
-        embedding=embeddings
-    )
+    texts = [_to_text(c) for c in chunks if _to_text(c).strip()]
+
+    if not texts:
+        return None
+
+    embeddings = embed_texts(texts, "retrieval_document")
+
+    index = faiss.IndexFlatIP(embeddings.shape[1])
+    index.add(embeddings)
+
+    return {"index": index, "chunks": texts}
